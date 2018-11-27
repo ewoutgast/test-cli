@@ -16,7 +16,22 @@ jobs:
       - run: npm run test --single-run --no-progress --browser=ChromeHeadlessCI
       - run: npm run e2e --no-progress --config=protractor-ci.conf.js
   deployment:
-    staging:
-      branch: master
-      heroku:
-        appname: foo-bar-123
+    docker:
+      - image: buildpack-deps:trusty
+    setps:
+      - checkout
+      - run:
+        name: Deplay master to heroku
+        command: |
+        git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      -build
+      -deploy:
+        requires:
+          -build
+          filters:
+            branches:
+              only: master
